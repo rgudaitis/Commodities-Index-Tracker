@@ -1,0 +1,364 @@
+<title>Raw Materials &amp; Commodities Index</title>
+<script type="application/json" id="history-data">{"snapshots":[{"fetched_at":"2026-07-20T21:23:28.695262+00:00","commodities":{"copper":{"ticker":"HG=F","label":"Copper","unit":"$/lb","group":"metals","price":6.34,"prev_close":6.21999979019165,"as_of":"2026-07-20T20:59:46+00:00","ytd_base":5.639999866485596,"ytd_base_date":"2026-01-02","yoy_base":5.610499858856201,"yoy_base_date":"2025-07-21"},"aluminum":{"ticker":"ALI=F","label":"Aluminum","unit":"$/ton","group":"metals","price":3448.75,"prev_close":3529.0,"as_of":"2026-07-20T16:11:51+00:00","ytd_base":2938.0,"ytd_base_date":"2026-01-02","yoy_base":2552.0,"yoy_base_date":"2025-07-21"},"steel":{"ticker":"HRC=F","label":"Steel (HRC)","unit":"$/ton","group":"metals","price":1187.0,"prev_close":1154.0,"as_of":"2026-07-20T19:22:18+00:00","ytd_base":940.0,"ytd_base_date":"2026-01-02","yoy_base":874.0,"yoy_base_date":"2025-07-21"},"crude_oil":{"ticker":"CL=F","label":"Crude Oil (WTI)","unit":"$/bbl","group":"energy","price":82.42,"prev_close":82.48999786376953,"as_of":"2026-07-20T20:59:59+00:00","ytd_base":57.31999969482422,"ytd_base_date":"2026-01-02","yoy_base":67.19999694824219,"yoy_base_date":"2025-07-21"},"natural_gas":{"ticker":"NG=F","label":"Natural Gas","unit":"$/MMBtu","group":"energy","price":2.837,"prev_close":2.9110000133514404,"as_of":"2026-07-20T20:59:48+00:00","ytd_base":3.618000030517578,"ytd_base_date":"2026-01-02","yoy_base":3.325000047683716,"yoy_base_date":"2025-07-21"},"shipping":{"ticker":"BDRY","label":"Dry Bulk Shipping (proxy)","unit":"ETF $","group":"freight","price":12.19,"prev_close":12.65999984741211,"as_of":"2026-07-20T20:00:00+00:00","ytd_base":8.460000038146973,"ytd_base_date":"2026-01-02","yoy_base":7.349999904632568,"yoy_base_date":"2025-07-21"},"resin_broad":{"series_id":"WPU066","label":"Plastic Resins & Materials (PPI)","group":"resins","value":310.753,"period":"June 2026","prev_value":319.802,"prev_period":"May 2026","ytd_base":252.962,"ytd_base_period":"January 2026","yoy_base":265.103,"yoy_base_period":"June 2025"},"resin_thermo":{"series_id":"WPU0662","label":"Thermoplastic Resins incl. PP/PE/ABS (PPI)","group":"resins","value":317.45,"period":"June 2026","prev_value":328.617,"prev_period":"May 2026","ytd_base":254.169,"ytd_base_period":"January 2026","yoy_base":266.301,"yoy_base_period":"June 2025"}}}]}</script>
+<style>
+  :root {
+    color-scheme: light;
+    --series-1: #2a78d6;
+    --series-2: #1baf7a;
+    --series-3: #eda100;
+    --series-4: #008300;
+    --series-5: #4a3aa7;
+    --series-6: #e34948;
+    --series-7: #e87ba4;
+    --series-8: #eb6834;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --series-1: #3987e5;
+      --series-2: #199e70;
+      --series-3: #c98500;
+      --series-4: #008300;
+      --series-5: #9085e9;
+      --series-6: #e66767;
+      --series-7: #d55181;
+      --series-8: #d95926;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+      --series-1: #3987e5;
+      --series-2: #199e70;
+      --series-3: #c98500;
+      --series-4: #008300;
+      --series-5: #9085e9;
+      --series-6: #e66767;
+      --series-7: #d55181;
+      --series-8: #d95926;
+  }
+
+  :root {
+    --surface-1: #fcfcfb;
+    --page: #f9f9f7;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --gridline: #e1e0d9;
+    --border: rgba(11,11,11,0.10);
+    --good: #006300;
+    --bad: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      --surface-1: #1a1a19;
+      --page: #0d0d0d;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --gridline: #2c2c2a;
+      --border: rgba(255,255,255,0.10);
+      --good: #0ca30c;
+      --bad: #e66767;
+    }
+  }
+  :root[data-theme="dark"] {
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --border: rgba(255,255,255,0.10);
+    --good: #0ca30c;
+    --bad: #e66767;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 2rem 1.25rem 4rem;
+  }
+  .wrap { max-width: 1020px; margin: 0 auto; }
+
+  header { margin-bottom: 1.75rem; }
+  .eyebrow {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.35rem;
+  }
+  h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+  .asof { font-size: 0.82rem; color: var(--text-secondary); }
+  .history-note { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem; max-width: 640px; }
+
+  .hero {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .hero-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.9rem; }
+  .hero-badges { display: flex; flex-wrap: wrap; gap: 1.75rem; }
+  .hero-stat { display: flex; flex-direction: column; gap: 0.25rem; }
+  .hero-stat-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+  .hero-stat .chg { font-size: 1.5rem; }
+
+  .mini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .mini-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+  .mini-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; margin-top: 0.3rem; }
+  .mini-label { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.3rem; }
+  .mini-badges { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+
+  .group { margin-bottom: 2.1rem; }
+  .group-title {
+    font-size: 1.02rem; font-weight: 650; margin: 0 0 0.85rem;
+    display: flex; align-items: center; gap: 0.55rem;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+
+  .tile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 0.9rem;
+  }
+  .tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem 0.9rem;
+  }
+  .tile-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.35rem;
+  }
+  .tile-label { font-size: 0.82rem; color: var(--text-secondary); font-weight: 600; }
+  .tile-value { font-size: 1.4rem; font-weight: 700; }
+  .tile-unit { font-size: 0.72rem; font-weight: 500; color: var(--text-muted); margin-left: 0.35rem; }
+  .tile-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+  .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.55rem; }
+  .chg-label { font-size: 0.68rem; color: var(--text-muted); margin-right: 0.15rem; }
+  .chg { font-size: 0.76rem; font-weight: 600; white-space: nowrap; }
+  .chg-up { color: var(--good); }
+  .chg-down { color: var(--bad); }
+  .chg-flat { color: var(--text-muted); }
+
+  .spark { display: block; margin-top: 0.6rem; }
+  .spark-empty {
+    font-size: 0.72rem; color: var(--text-muted); margin-top: 0.6rem;
+    padding: 0.6rem 0; border-top: 1px dashed var(--gridline);
+  }
+
+  footer {
+    margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--gridline);
+    font-size: 0.74rem; color: var(--text-muted);
+  }
+  footer a { color: inherit; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Daily Index &middot; Refreshes 7:00 AM ET</div>
+    <h1>Raw Materials &amp; Commodities Index</h1>
+    <div class="asof">As of July 20, 2026 · 09:23 PM UTC</div>
+    <div class="history-note">First snapshot — daily sparkline trend lines will appear starting tomorrow. YTD and YoY comparisons are accurate from day one (pulled from each source's full history).</div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-label">Composite (equal-weighted average across all tracked commodities)</div>
+    <div class="hero-badges">
+      <div class="hero-stat"><span class="hero-stat-label">Day / Mo</span><span class="chg chg-down">▼ -1.26%</span></div>
+      <div class="hero-stat"><span class="hero-stat-label">YTD</span><span class="chg chg-up">▲ +21.26%</span></div>
+      <div class="hero-stat"><span class="hero-stat-label">YoY</span><span class="chg chg-up">▲ +24.28%</span></div>
+    </div>
+  </div>
+
+  <div class="mini-grid">
+    
+        <div class="mini-tile">
+          <div class="mini-dot" style="background:var(--series-1)"></div>
+          <div>
+            <div class="mini-label">Metals</div>
+            <div class="mini-badges">
+              <span class="chg-label">Day</span><span class="chg chg-up">▲ +0.84%</span>
+              <span class="chg-label">YTD</span><span class="chg chg-up">▲ +18.69%</span>
+              <span class="chg-label">YoY</span><span class="chg chg-up">▲ +27.98%</span>
+            </div>
+          </div>
+        </div>
+        <div class="mini-tile">
+          <div class="mini-dot" style="background:var(--series-8)"></div>
+          <div>
+            <div class="mini-label">Energy</div>
+            <div class="mini-badges">
+              <span class="chg-label">Day</span><span class="chg chg-down">▼ -1.31%</span>
+              <span class="chg-label">YTD</span><span class="chg chg-up">▲ +11.10%</span>
+              <span class="chg-label">YoY</span><span class="chg chg-up">▲ +3.99%</span>
+            </div>
+          </div>
+        </div>
+        <div class="mini-tile">
+          <div class="mini-dot" style="background:var(--series-2)"></div>
+          <div>
+            <div class="mini-label">Freight</div>
+            <div class="mini-badges">
+              <span class="chg-label">Day</span><span class="chg chg-down">▼ -3.71%</span>
+              <span class="chg-label">YTD</span><span class="chg chg-up">▲ +44.09%</span>
+              <span class="chg-label">YoY</span><span class="chg chg-up">▲ +65.85%</span>
+            </div>
+          </div>
+        </div>
+        <div class="mini-tile">
+          <div class="mini-dot" style="background:var(--series-5)"></div>
+          <div>
+            <div class="mini-label">Resins (PPI, monthly)</div>
+            <div class="mini-badges">
+              <span class="chg-label">Mo</span><span class="chg chg-down">▼ -3.11%</span>
+              <span class="chg-label">YTD</span><span class="chg chg-up">▲ +23.87%</span>
+              <span class="chg-label">YoY</span><span class="chg chg-up">▲ +18.21%</span>
+            </div>
+          </div>
+        </div>
+  </div>
+
+  
+    <section class="group">
+      <h2 class="group-title"><span class="dot" style="background:var(--series-1)"></span>Metals</h2>
+      <div class="tile-grid">
+        <div class="tile">
+          <div class="tile-head">
+            <div class="tile-label">Copper</div>
+          </div>
+          <div class="tile-value">$6.34<span class="tile-unit">$/lb</span></div>
+          
+          <div class="badge-row">
+            <span class="chg-label">Day</span><span class="chg chg-up">▲ +1.93%</span>
+            <span class="chg-label">YTD</span><span class="chg chg-up">▲ +12.41%</span>
+            <span class="chg-label">YoY</span><span class="chg chg-up">▲ +13.00%</span>
+          </div>
+          <div class="spark-empty">Building daily history… check back tomorrow</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="tile-label">Aluminum</div>
+          </div>
+          <div class="tile-value">$3,448.75<span class="tile-unit">$/ton</span></div>
+          
+          <div class="badge-row">
+            <span class="chg-label">Day</span><span class="chg chg-down">▼ -2.27%</span>
+            <span class="chg-label">YTD</span><span class="chg chg-up">▲ +17.38%</span>
+            <span class="chg-label">YoY</span><span class="chg chg-up">▲ +35.14%</span>
+          </div>
+          <div class="spark-empty">Building daily history… check back tomorrow</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="tile-label">Steel (HRC)</div>
+          </div>
+          <div class="tile-value">$1,187.00<span class="tile-unit">$/ton</span></div>
+          
+          <div class="badge-row">
+            <span class="chg-label">Day</span><span class="chg chg-up">▲ +2.86%</span>
+            <span class="chg-label">YTD</span><span class="chg chg-up">▲ +26.28%</span>
+            <span class="chg-label">YoY</span><span class="chg chg-up">▲ +35.81%</span>
+          </div>
+          <div class="spark-empty">Building daily history… check back tomorrow</div>
+        </div></div>
+    </section>
+    <section class="group">
+      <h2 class="group-title"><span class="dot" style="background:var(--series-8)"></span>Energy</h2>
+      <div class="tile-grid">
+        <div class="tile">
+          <div class="tile-head">
+            <div class="tile-label">Crude Oil (WTI)</div>
+          </div>
+          <div class="tile-value">$82.42<span class="tile-unit">$/bbl</span></div>
+          
+          <div class="badge-row">
+            <span class="chg-label">Day</span><span class="chg chg-down">▼ -0.08%</span>
+            <span class="chg-label">YTD</span><span class="chg chg-up">▲ +43.79%</span>
+            <span class="chg-label">YoY</span><span class="chg chg-up">▲ +22.65%</span>
+          </div>
+          <div class="spark-empty">Building daily history… check back tomorrow</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="tile-label">Natural Gas</div>
+          </div>
+          <div class="tile-value">$2.84<span class="tile-unit">$/MMBtu</span></div>
+          
+          <div class="badge-row">
+            <span class="chg-label">Day</span><span class="chg chg-down">▼ -2.54%</span>
+            <span class="chg-label">YTD</span><span class="chg chg-down">▼ -21.59%</span>
+            <span class="chg-label">YoY</span><span class="chg chg-down">▼ -14.68%</span>
+          </div>
+          <div class="spark-empty">Building daily history… check back tomorrow</div>
+        </div></div>
+    </section>
+    <section class="group">
+      <h2 class="group-title"><span class="dot" style="background:var(--series-2)"></span>Freight</h2>
+      <div class="tile-grid">
+        <div class="tile">
+          <div class="tile-head">
+            <div class="tile-label">Dry Bulk Shipping (proxy)</div>
+          </div>
+          <div class="tile-value">$12.19<span class="tile-unit">ETF $</span></div>
+          
+          <div class="badge-row">
+            <span class="chg-label">Day</span><span class="chg chg-down">▼ -3.71%</span>
+            <span class="chg-label">YTD</span><span class="chg chg-up">▲ +44.09%</span>
+            <span class="chg-label">YoY</span><span class="chg chg-up">▲ +65.85%</span>
+          </div>
+          <div class="spark-empty">Building daily history… check back tomorrow</div>
+        </div></div>
+    </section>
+    <section class="group">
+      <h2 class="group-title"><span class="dot" style="background:var(--series-5)"></span>Resins (PPI, monthly)</h2>
+      <div class="tile-grid">
+        <div class="tile">
+          <div class="tile-head">
+            <div class="tile-label">Plastic Resins & Materials (PPI)</div>
+          </div>
+          <div class="tile-value">310.75<span class="tile-unit"></span></div>
+          <div class="tile-sub">June 2026</div>
+          <div class="badge-row">
+            <span class="chg-label">Mo</span><span class="chg chg-down">▼ -2.83%</span>
+            <span class="chg-label">YTD</span><span class="chg chg-up">▲ +22.85%</span>
+            <span class="chg-label">YoY</span><span class="chg chg-up">▲ +17.22%</span>
+          </div>
+          <div class="spark-empty">Building daily history… check back tomorrow</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="tile-label">Thermoplastic Resins incl. PP/PE/ABS (PPI)</div>
+          </div>
+          <div class="tile-value">317.45<span class="tile-unit"></span></div>
+          <div class="tile-sub">June 2026</div>
+          <div class="badge-row">
+            <span class="chg-label">Mo</span><span class="chg chg-down">▼ -3.40%</span>
+            <span class="chg-label">YTD</span><span class="chg chg-up">▲ +24.90%</span>
+            <span class="chg-label">YoY</span><span class="chg chg-up">▲ +19.21%</span>
+          </div>
+          <div class="spark-empty">Building daily history… check back tomorrow</div>
+        </div></div>
+    </section>
+
+  <footer>
+    Day/Mo = vs prior trading day (metals/energy/freight) or prior month (resins, PPI is monthly). YTD = vs first trading day/month of 2026. YoY = vs ~12 months ago (same trading day or same month last year). Sources: metals &amp; energy &mdash; Yahoo Finance daily futures (Copper HG=F, Aluminum ALI=F, Steel HRC=F, WTI Crude CL=F, Natural Gas NG=F); freight &mdash; BDRY dry-bulk shipping ETF (proxy for Baltic Dry Index, which has no free feed); resins &mdash; U.S. Bureau of Labor Statistics Producer Price Index, series WPU066 &amp; WPU0662 (monthly, no PVC-specific series exists free). Not investment advice.
+  </footer>
+</div>
