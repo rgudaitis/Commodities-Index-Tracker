@@ -73,6 +73,8 @@ For every call below, use this exact extraction prompt: "{EXTRACT_PROMPT}"
 
 Create a `raw/` subdirectory and save each result to the exact filename shown, substituting the real numeric values from windows.json for the <ytd_period1>/<ytd_period2>/<yoy_period1>/<yoy_period2>/<bls_start_year>/<bls_end_year> placeholders in the URLs below. This is 18 Yahoo calls (3 per ticker x 6 tickers) + 2 BLS calls = 20 WebFetch calls total.
 
+IMPORTANT — pace these calls, don't fire them in a rapid burst: run `sleep 6` (via Bash) between each WebFetch call in this step (so roughly 6 seconds between every one of the 20 calls). A prior run sent all 20 back-to-back with no pacing and every single one came back "HTTP 403 Forbidden" — almost certainly Yahoo/BLS's anti-bot rate limiting reacting to the burst pattern, since manual one-off calls to these same URLs succeed fine. Spacing them out is cheap insurance against that. Don't skip the sleep to save time.
+
 Yahoo Finance (metals/energy/freight), key (ticker):{yahoo_table}
 
 BLS PPI (resins, monthly), key (series id):{bls_table}
