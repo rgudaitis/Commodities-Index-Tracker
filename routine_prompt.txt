@@ -2,28 +2,137 @@ Daily task: refresh the "Raw Materials & Commodities Index" hosted artifact with
 
 ARTIFACT_URL = https://claude.ai/code/artifact/c01e2adb-9419-412c-932d-c9b2e917012a
 
+BACKGROUND — why this run uses WebFetch instead of Python `requests` for data fetching:
+This sandbox's outbound network proxy only allows a small allowlist of hosts (confirmed via diagnostic: only api.github.com reachable; Yahoo Finance, BLS, and every other external host tested returned "Tunnel connection failed: 403 Forbidden"). The WebFetch tool runs on Anthropic's own infrastructure, not through this sandbox's local network, so it reaches these sources fine. Do NOT attempt to fetch Yahoo Finance or BLS URLs with Python `requests`/`urllib`/`curl` from within this sandbox — it will fail. Use the WebFetch tool for every external data fetch in this routine.
+
 STEP 1 — Read back the accumulated daily history.
 Call the WebFetch tool with url=ARTIFACT_URL and this exact prompt: "Find the <script type=\"application/json\" id=\"history-data\"> tag in this page's HTML source and return its exact, complete, verbatim text content (the raw JSON string inside that script tag), with no summarization, paraphrasing, or truncation. Output ONLY that raw JSON text and nothing else."
 Take the JSON text returned and write it verbatim to a local file named `history.json` in your working directory. If WebFetch fails or the tag can't be found, write `{"snapshots": []}` to history.json instead and continue (don't fail the whole run over this — it just means today's snapshot becomes the new starting point for the sparkline; YTD/YoY badges are unaffected since those are always pulled fresh from each source's own history, not from this file).
 
-STEP 2 — Write fetch_data.py with EXACTLY this content (copy verbatim, do not modify the logic):
+STEP 2 — Compute today's date windows (no network).
+Write compute_windows.py with EXACTLY this content (copy verbatim, do not modify the logic):
 
 ```python
-"""Fetch daily commodity prices (Yahoo Finance) and monthly PPI resin data (BLS).
-Each commodity carries its current value plus three comparison baselines:
-day-over-day (prev close/month), YTD (start-of-year), and YoY (~12 months ago).
-Writes a single JSON snapshot + appends to a persistent history file so the
-index can also be tracked day-by-day over time.
+"""Compute the small date windows needed for YTD and YoY baseline lookups.
+Written once per run so the WebFetch URLs built from these boundaries and the
+later assembly step agree on the exact same target dates. No network calls.
+"""
+import json
+from datetime import datetime, timedelta, timezone
+
+now = datetime.now(timezone.utc)
+year_start = datetime(now.year, 1, 1, tzinfo=timezone.utc)
+yoy_target = now - timedelta(days=365)
+
+windows = {
+    "now_iso": now.isoformat(),
+    "ytd_period1": int(year_start.timestamp()),
+    "ytd_period2": int((year_start + timedelta(days=9)).timestamp()),
+    "yoy_period1": int((yoy_target - timedelta(days=7)).timestamp()),
+    "yoy_period2": int((yoy_target + timedelta(days=7)).timestamp()),
+    "yoy_target_iso": yoy_target.isoformat(),
+    "bls_start_year": now.year - 1,
+    "bls_end_year": now.year,
+}
+with open("windows.json", "w") as f:
+    json.dump(windows, f, indent=2)
+print(json.dumps(windows, indent=2))
+```
+
+Run it: `python3 compute_windows.py`. This writes `windows.json` with the numeric period1/period2 boundaries you'll need for the YTD and YoY WebFetch calls below (a small window near the start of this year, and a small window near ~365 days ago), plus the BLS start/end year. Read windows.json after running it so you have `ytd_period1`, `ytd_period2`, `yoy_period1`, `yoy_period2`, `bls_start_year`, `bls_end_year` available for STEP 3.
+
+STEP 3 — Fetch each data point individually via WebFetch, and save the raw response.
+For every call below, use this exact extraction prompt: "Output ONLY the exact, complete, verbatim raw JSON text of this response, with no summarization, paraphrasing, or truncation. If the response is not valid JSON, output exactly: {"error": "<brief description of what went wrong>"}"
+
+Create a `raw/` subdirectory and save each result to the exact filename shown, substituting the real numeric values from windows.json for the <ytd_period1>/<ytd_period2>/<yoy_period1>/<yoy_period2>/<bls_start_year>/<bls_end_year> placeholders in the URLs below. This is 18 Yahoo calls (3 per ticker x 6 tickers) + 2 BLS calls = 20 WebFetch calls total.
+
+Yahoo Finance (metals/energy/freight), key (ticker):
+  copper (HG=F):
+    - current: WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/HG=F?interval=1d&range=5d
+      -> save to raw/copper_current.json
+    - ytd:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/HG=F?interval=1d&period1=<ytd_period1>&period2=<ytd_period2>
+      -> save to raw/copper_ytd.json
+    - yoy:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/HG=F?interval=1d&period1=<yoy_period1>&period2=<yoy_period2>
+      -> save to raw/copper_yoy.json
+  aluminum (ALI=F):
+    - current: WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/ALI=F?interval=1d&range=5d
+      -> save to raw/aluminum_current.json
+    - ytd:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/ALI=F?interval=1d&period1=<ytd_period1>&period2=<ytd_period2>
+      -> save to raw/aluminum_ytd.json
+    - yoy:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/ALI=F?interval=1d&period1=<yoy_period1>&period2=<yoy_period2>
+      -> save to raw/aluminum_yoy.json
+  steel (HRC=F):
+    - current: WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/HRC=F?interval=1d&range=5d
+      -> save to raw/steel_current.json
+    - ytd:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/HRC=F?interval=1d&period1=<ytd_period1>&period2=<ytd_period2>
+      -> save to raw/steel_ytd.json
+    - yoy:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/HRC=F?interval=1d&period1=<yoy_period1>&period2=<yoy_period2>
+      -> save to raw/steel_yoy.json
+  crude_oil (CL=F):
+    - current: WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=5d
+      -> save to raw/crude_oil_current.json
+    - ytd:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&period1=<ytd_period1>&period2=<ytd_period2>
+      -> save to raw/crude_oil_ytd.json
+    - yoy:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&period1=<yoy_period1>&period2=<yoy_period2>
+      -> save to raw/crude_oil_yoy.json
+  natural_gas (NG=F):
+    - current: WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/NG=F?interval=1d&range=5d
+      -> save to raw/natural_gas_current.json
+    - ytd:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/NG=F?interval=1d&period1=<ytd_period1>&period2=<ytd_period2>
+      -> save to raw/natural_gas_ytd.json
+    - yoy:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/NG=F?interval=1d&period1=<yoy_period1>&period2=<yoy_period2>
+      -> save to raw/natural_gas_yoy.json
+  shipping (BDRY):
+    - current: WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/BDRY?interval=1d&range=5d
+      -> save to raw/shipping_current.json
+    - ytd:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/BDRY?interval=1d&period1=<ytd_period1>&period2=<ytd_period2>
+      -> save to raw/shipping_ytd.json
+    - yoy:     WebFetch url=https://query1.finance.yahoo.com/v8/finance/chart/BDRY?interval=1d&period1=<yoy_period1>&period2=<yoy_period2>
+      -> save to raw/shipping_yoy.json
+
+BLS PPI (resins, monthly), key (series id):
+  resin_broad (WPU066):
+    - WebFetch url=https://api.bls.gov/publicAPI/v2/timeseries/data/WPU066?startyear=<bls_start_year>&endyear=<bls_end_year>
+      -> save to raw/resin_broad_bls.json
+  resin_thermo (WPU0662):
+    - WebFetch url=https://api.bls.gov/publicAPI/v2/timeseries/data/WPU0662?startyear=<bls_start_year>&endyear=<bls_end_year>
+      -> save to raw/resin_thermo_bls.json
+
+If any individual WebFetch call fails, times out, or doesn't return valid JSON, write `{"error": "<brief description>"}` to that specific raw file and move on to the next one — do NOT abort the whole run over one failed call. Each commodity's assembly step (STEP 4) handles missing/error raw files gracefully on its own.
+
+STEP 4 — Assemble today's snapshot from the raw files (no network).
+Write assemble.py with EXACTLY this content (copy verbatim, do not modify the logic):
+
+```python
+"""Assemble today's commodity snapshot from pre-fetched raw JSON files.
+
+This replaces fetch_data.py's network layer. Instead of this script calling
+requests.get/post itself (blocked by this sandbox's egress proxy for every
+external host except its own allowlist), the cloud agent fetches each small,
+targeted window via the WebFetch tool (which runs on Anthropic's infra, not
+through this sandbox's proxy) and saves the raw verbatim JSON here first.
+This script only reads local files and does the exact same parsing/merging
+fetch_data.py used to do, producing an identical history.json schema so
+build_dashboard.py needs no changes.
+
+Expected local files before running this:
+  windows.json                     - from compute_windows.py
+  raw/{key}_current.json           - Yahoo chart, range=5d
+  raw/{key}_ytd.json                - Yahoo chart, period1/period2 near Jan 1
+  raw/{key}_yoy.json                - Yahoo chart, period1/period2 ~365d ago
+  raw/{key}_bls.json                - BLS series response, per series
+Any raw file that WebFetch couldn't retrieve cleanly should contain
+{"error": "<description>"} instead - this script treats that the same as a
+failed fetch.
 """
 import json
 import os
-import time
-from datetime import datetime, timedelta, timezone
-
-import requests
+from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HISTORY_PATH = os.path.join(HERE, "history.json")
+WINDOWS_PATH = os.path.join(HERE, "windows.json")
+RAW_DIR = os.path.join(HERE, "raw")
 
 YAHOO_TICKERS = {
     "copper": {"ticker": "HG=F", "label": "Copper", "unit": "$/lb", "group": "metals"},
@@ -39,90 +148,67 @@ BLS_SERIES = {
     "resin_thermo": {"series_id": "WPU0662", "label": "Thermoplastic Resins incl. PP/PE/ABS (PPI)", "group": "resins"},
 }
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; commodities-index/1.0)"}
 
-
-def fetch_yahoo(ticker, retries=3):
-    """Current price + day-over-day prev close, plus YTD-start and ~1-year-ago
-    closes pulled straight from 2y of daily history (no dependency on our own
-    accumulated tracking, so YTD/YoY are correct from day one)."""
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
-    for attempt in range(retries):
+def load_json(path):
+    if not os.path.exists(path):
+        return None
+    with open(path, "r", encoding="utf-8") as f:
         try:
-            r = requests.get(url, params={"interval": "1d", "range": "2y"}, headers=HEADERS, timeout=20)
-            r.raise_for_status()
-            data = r.json()
-            result = data["chart"]["result"][0]
-            meta = result["meta"]
-            price = meta.get("regularMarketPrice")
-            ts_market = meta.get("regularMarketTime")
-            as_of = datetime.fromtimestamp(ts_market, tz=timezone.utc).isoformat() if ts_market else None
-
-            timestamps = result.get("timestamp") or []
-            closes = result["indicators"]["quote"][0].get("close") or []
-            pairs = [(t, c) for t, c in zip(timestamps, closes) if c is not None]
-
-            # NOTE: meta.chartPreviousClose is NOT reliable here — with a long
-            # range like 2y, Yahoo sets it relative to the start of the range,
-            # not to yesterday. Derive true day-over-day from the daily closes
-            # series itself (second-to-last bar), falling back to meta only if
-            # the series is too short.
-            if len(pairs) >= 2:
-                prev_close = pairs[-2][1]
-            else:
-                prev_close = meta.get("chartPreviousClose") or meta.get("previousClose")
-
-            ytd_base = ytd_base_date = None
-            yoy_base = yoy_base_date = None
-            if pairs:
-                now = datetime.now(timezone.utc)
-                year_start = datetime(now.year, 1, 1, tzinfo=timezone.utc)
-                yoy_target = now - timedelta(days=365)
-
-                ytd_pt = next(((t, c) for t, c in pairs if datetime.fromtimestamp(t, timezone.utc) >= year_start), None)
-                if ytd_pt:
-                    ytd_base_date = datetime.fromtimestamp(ytd_pt[0], timezone.utc).date().isoformat()
-                    ytd_base = ytd_pt[1]
-
-                yoy_pt = min(pairs, key=lambda tc: abs(datetime.fromtimestamp(tc[0], timezone.utc) - yoy_target))
-                yoy_base_date = datetime.fromtimestamp(yoy_pt[0], timezone.utc).date().isoformat()
-                yoy_base = yoy_pt[1]
-
-            return {
-                "price": price, "prev_close": prev_close, "as_of": as_of,
-                "ytd_base": ytd_base, "ytd_base_date": ytd_base_date,
-                "yoy_base": yoy_base, "yoy_base_date": yoy_base_date,
-            }
-        except Exception as e:
-            if attempt == retries - 1:
-                return {"error": str(e)}
-            time.sleep(2)
+            return json.load(f)
+        except Exception:
+            return None
 
 
-def fetch_bls(series_ids, retries=3):
-    """Monthly PPI series, pulling the last ~2 calendar years so we can find
-    latest, prior-month, start-of-year, and same-month-last-year in one call."""
-    now_year = datetime.now(timezone.utc).year
-    url = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
-    for attempt in range(retries):
-        try:
-            r = requests.post(
-                url,
-                json={"seriesid": series_ids, "startyear": str(now_year - 1), "endyear": str(now_year)},
-                timeout=15,
-            )
-            r.raise_for_status()
-            data = r.json()
-            if data.get("status") != "REQUEST_SUCCEEDED":
-                raise RuntimeError(f"BLS status: {data.get('status')} {data.get('message')}")
-            out = {}
-            for series in data["Results"]["series"]:
-                out[series["seriesID"]] = series["data"]  # newest first
-            return out
-        except Exception as e:
-            if attempt == retries - 1:
-                return {"error": str(e)}
-            time.sleep(2)
+def yahoo_pairs(raw):
+    """Extract (timestamp, close) pairs + meta from a raw Yahoo chart response."""
+    if not raw or "error" in raw:
+        return None, None
+    try:
+        result = raw["chart"]["result"][0]
+        meta = result["meta"]
+        timestamps = result.get("timestamp") or []
+        closes = result["indicators"]["quote"][0].get("close") or []
+        pairs = [(t, c) for t, c in zip(timestamps, closes) if c is not None]
+        return pairs, meta
+    except Exception:
+        return None, None
+
+
+def assemble_yahoo(key, meta, windows):
+    current_raw = load_json(os.path.join(RAW_DIR, f"{key}_current.json"))
+    pairs, ymeta = yahoo_pairs(current_raw)
+    if not pairs or ymeta is None:
+        err = (current_raw or {}).get("error", "missing or invalid current-window raw file")
+        return {**meta, "error": err}
+
+    price = ymeta.get("regularMarketPrice")
+    ts_market = ymeta.get("regularMarketTime")
+    as_of = datetime.fromtimestamp(ts_market, tz=timezone.utc).isoformat() if ts_market else None
+    if len(pairs) >= 2:
+        prev_close = pairs[-2][1]
+    else:
+        prev_close = ymeta.get("chartPreviousClose") or ymeta.get("previousClose")
+
+    ytd_base = ytd_base_date = None
+    ytd_pairs, _ = yahoo_pairs(load_json(os.path.join(RAW_DIR, f"{key}_ytd.json")))
+    if ytd_pairs:
+        ytd_pairs.sort(key=lambda tc: tc[0])
+        ytd_base_date = datetime.fromtimestamp(ytd_pairs[0][0], timezone.utc).date().isoformat()
+        ytd_base = ytd_pairs[0][1]
+
+    yoy_base = yoy_base_date = None
+    yoy_pairs, _ = yahoo_pairs(load_json(os.path.join(RAW_DIR, f"{key}_yoy.json")))
+    if yoy_pairs:
+        yoy_target = datetime.fromisoformat(windows["yoy_target_iso"])
+        yoy_pt = min(yoy_pairs, key=lambda tc: abs(datetime.fromtimestamp(tc[0], timezone.utc) - yoy_target))
+        yoy_base_date = datetime.fromtimestamp(yoy_pt[0], timezone.utc).date().isoformat()
+        yoy_base = yoy_pt[1]
+
+    return {
+        **meta, "price": price, "prev_close": prev_close, "as_of": as_of,
+        "ytd_base": ytd_base, "ytd_base_date": ytd_base_date,
+        "yoy_base": yoy_base, "yoy_base_date": yoy_base_date,
+    }
 
 
 def bls_point(points, year, period):
@@ -130,6 +216,39 @@ def bls_point(points, year, period):
         if p["year"] == str(year) and p["period"] == period:
             return p
     return None
+
+
+def assemble_bls(key, meta):
+    raw = load_json(os.path.join(RAW_DIR, f"{key}_bls.json"))
+    if not raw or "error" in raw:
+        err = (raw or {}).get("error", "missing or invalid raw file")
+        return {**meta, "error": err}
+    if raw.get("status") != "REQUEST_SUCCEEDED":
+        return {**meta, "error": f"BLS status: {raw.get('status')} {raw.get('message')}"}
+    try:
+        points = raw["Results"]["series"][0]["data"]  # newest first
+    except Exception as e:
+        return {**meta, "error": str(e)}
+    if not points:
+        return {**meta, "error": "no data points"}
+
+    latest = points[0]
+    prev = points[1] if len(points) > 1 else None
+    entry = {
+        **meta,
+        "value": float(latest["value"]),
+        "period": f"{latest['periodName']} {latest['year']}",
+        "prev_value": float(prev["value"]) if prev else None,
+        "prev_period": f"{prev['periodName']} {prev['year']}" if prev else None,
+    }
+    ly, lp = int(latest["year"]), latest["period"]
+    jan_this_year = bls_point(points, ly, "M01")
+    same_month_last_year = bls_point(points, ly - 1, lp)
+    entry["ytd_base"] = float(jan_this_year["value"]) if jan_this_year else None
+    entry["ytd_base_period"] = f"{jan_this_year['periodName']} {jan_this_year['year']}" if jan_this_year else None
+    entry["yoy_base"] = float(same_month_last_year["value"]) if same_month_last_year else None
+    entry["yoy_base_period"] = f"{same_month_last_year['periodName']} {same_month_last_year['year']}" if same_month_last_year else None
+    return entry
 
 
 def load_history():
@@ -145,44 +264,21 @@ def save_history(history):
 
 
 def main():
-    now = datetime.now(timezone.utc).isoformat()
-    snapshot = {"fetched_at": now, "commodities": {}}
+    windows = load_json(WINDOWS_PATH)
+    if windows is None:
+        raise SystemExit("windows.json missing - run compute_windows.py first.")
+
+    now = datetime.fromisoformat(windows["now_iso"])
+    snapshot = {"fetched_at": now.isoformat(), "commodities": {}}
 
     for key, meta in YAHOO_TICKERS.items():
-        res = fetch_yahoo(meta["ticker"])
-        snapshot["commodities"][key] = {**meta, **res}
-
-    bls_ids = [v["series_id"] for v in BLS_SERIES.values()]
-    bls_data = fetch_bls(bls_ids)
+        snapshot["commodities"][key] = assemble_yahoo(key, meta, windows)
 
     for key, meta in BLS_SERIES.items():
-        sid = meta["series_id"]
-        if isinstance(bls_data, dict) and sid in bls_data:
-            points = bls_data[sid]  # newest first
-            latest = points[0] if points else None
-            prev = points[1] if len(points) > 1 else None
-            entry = {
-                **meta,
-                "value": float(latest["value"]) if latest else None,
-                "period": f"{latest['periodName']} {latest['year']}" if latest else None,
-                "prev_value": float(prev["value"]) if prev else None,
-                "prev_period": f"{prev['periodName']} {prev['year']}" if prev else None,
-            }
-            if latest:
-                ly, lp = int(latest["year"]), latest["period"]
-                jan_this_year = bls_point(points, ly, "M01")
-                same_month_last_year = bls_point(points, ly - 1, lp)
-                entry["ytd_base"] = float(jan_this_year["value"]) if jan_this_year else None
-                entry["ytd_base_period"] = f"{jan_this_year['periodName']} {jan_this_year['year']}" if jan_this_year else None
-                entry["yoy_base"] = float(same_month_last_year["value"]) if same_month_last_year else None
-                entry["yoy_base_period"] = f"{same_month_last_year['periodName']} {same_month_last_year['year']}" if same_month_last_year else None
-            snapshot["commodities"][key] = entry
-        else:
-            snapshot["commodities"][key] = {**meta, "error": bls_data.get("error", "unknown")}
+        snapshot["commodities"][key] = assemble_bls(key, meta)
 
     history = load_history()
-    # avoid duplicate same-day entries when re-run
-    today = now[:10]
+    today = now.isoformat()[:10]
     history["snapshots"] = [s for s in history["snapshots"] if s["fetched_at"][:10] != today]
     history["snapshots"].append(snapshot)
     history["snapshots"].sort(key=lambda s: s["fetched_at"])
@@ -196,11 +292,9 @@ if __name__ == "__main__":
     main()
 ```
 
-Then run it: `python3 fetch_data.py`. This reads history.json (from Step 1), appends today's snapshot (removing any existing entry for today's date first, so re-runs are safe), and overwrites history.json. Each commodity gets its current value plus prev (day/month), ytd_base, and yoy_base — all fetched fresh from Yahoo Finance (2 years of daily history) and BLS (2 years of monthly PPI), not derived from our own accumulated tracking.
+Run it: `python3 assemble.py`. This reads windows.json, every raw/*.json file from STEP 3, and history.json (from STEP 1), then produces today's snapshot and merges it into history.json (removing any existing entry for today's date first, so re-runs are safe) — identical schema to before, so STEP 5 needs no changes.
 
-If `requests` is not installed, run `pip install requests` first, then retry.
-
-STEP 3 — Write build_dashboard.py with EXACTLY this content (copy verbatim, do not modify the logic):
+STEP 5 — Write build_dashboard.py with EXACTLY this content (copy verbatim, do not modify the logic):
 
 ```python
 """Build the commodities index dashboard HTML from history.json.
@@ -669,7 +763,7 @@ if __name__ == "__main__":
 
 Then run it: `python3 build_dashboard.py`. This produces `dashboard.html` in your working directory, with Day/YTD/YoY comparison badges per commodity, per group, and for the overall composite, plus the full updated history re-embedded for tomorrow's run.
 
-STEP 4 — Republish the artifact in place.
+STEP 6 — Republish the artifact in place.
 Call the Artifact tool with:
 - file_path = the local path to dashboard.html you just built
 - url = https://claude.ai/code/artifact/c01e2adb-9419-412c-932d-c9b2e917012a  (this MUST be set so it updates the existing page instead of minting a new URL)
@@ -677,18 +771,19 @@ Call the Artifact tool with:
 - description = "Daily-refreshed index of raw material and commodity prices (metals, energy, freight, resins) with day, YTD, and year-over-year comparisons"
 - label = today's date, e.g. "2026-07-21 refresh"
 
-STEP 4.5 — Verify the publish actually landed, and alert on any failure.
+STEP 6.5 — Verify the publish actually landed, and alert on any failure.
 Re-fetch ARTIFACT_URL with WebFetch (same prompt as STEP 1: extract the raw `history-data` JSON verbatim). Parse it and confirm:
 (a) the fetch succeeded and returned valid JSON,
 (b) the last snapshot's `fetched_at` date (UTC, first 10 chars) equals today's UTC date, and
 (c) at least half of the commodities in that snapshot do NOT have an `"error"` key (i.e. this wasn't a run where every single source failed).
-If ANY of (a)/(b)/(c) fail, OR if STEP 2's fetch_data.py, STEP 3's build_dashboard.py, or STEP 4's Artifact publish raised an exception/error at any point, treat this run as FAILED. In that case, call the PushNotification tool with status="proactive" and a message under 200 characters stating what failed, e.g. "Commodities index: today's refresh failed at Yahoo fetch step, dashboard not updated — check https://claude.ai/code/artifact/c01e2adb-9419-412c-932d-c9b2e917012a" or "Commodities index: artifact republish didn't verify — today's snapshot missing from live page." Be specific about which step failed so it's actionable. Note: per STEP 3's build_dashboard.py, a source outage no longer blanks the whole dashboard (it falls back to the last good value per commodity, marked as stale) — the PushNotification is still required on this condition because a fallback masks the outage visually but someone still needs to know the data is stale and why.
+If ANY of (a)/(b)/(c) fail, OR if STEP 2-5's scripts or STEP 6's Artifact publish raised an exception/error at any point, treat this run as FAILED. In that case, call the PushNotification tool with status="proactive" and a message under 200 characters stating what failed, e.g. "Commodities index: today's refresh failed at Yahoo fetch step, dashboard not updated — check https://claude.ai/code/artifact/c01e2adb-9419-412c-932d-c9b2e917012a" or "Commodities index: artifact republish didn't verify — today's snapshot missing from live page." Be specific about which step failed so it's actionable. Note: per STEP 5's build_dashboard.py, a source outage no longer blanks the whole dashboard (it falls back to the last good value per commodity, marked as stale) — the PushNotification is still required on this condition because a fallback masks the outage visually but someone still needs to know the data is stale and why.
 If everything verified successfully, do NOT call PushNotification — a notification on every successful daily run would just be noise. Silence on success is correct.
 
-STEP 5 — Report back briefly (as your final text output): today's composite Day/YTD/YoY % changes, and confirm the artifact URL was updated successfully (not a new URL) and that STEP 4.5 verification passed. If STEP 4.5 failed and you already sent a PushNotification, say so here too.
+STEP 7 — Report back briefly (as your final text output): today's composite Day/YTD/YoY % changes, how many of the 8 commodities fetched cleanly vs fell back to stale data, and confirm the artifact URL was updated successfully (not a new URL) and that STEP 6.5 verification passed. If STEP 6.5 failed and you already sent a PushNotification, say so here too.
 
 Notes:
 - This index tracks: Copper, Aluminum, Steel (HRC), Crude Oil (WTI), Natural Gas, and a dry-bulk shipping ETF (BDRY, proxy for the Baltic Dry Index) daily via Yahoo Finance; plus two BLS Producer Price Index series for plastics resins (WPU066, WPU0662) which only update monthly — most days these two will show an unchanged "Mo" badge, that's expected, not a bug.
-- Don't invent, estimate, or hallucinate any price/index/YTD/YoY values. If a specific source fails after retries, leave that commodity's error field as returned by the script — build_dashboard.py will fall back to the last known-good value for display and mark it stale rather than guessing a number.
-- Do not modify the Python script logic — copy it verbatim. The scripts already handle retries, rounding, duplicate-day de-duplication, correct YTD/YoY baseline lookups, and stale-data fallback.
-- Failure notifications (STEP 4.5) are the only way anyone finds out a daily run silently didn't get fresh data — don't skip that verification step, and don't suppress a warranted PushNotification just because the dashboard "looks fine" thanks to the fallback.
+- Don't invent, estimate, or hallucinate any price/index/YTD/YoY values. If a specific WebFetch call fails after being attempted once, record the error in that raw file per STEP 3 and move on — assemble.py and build_dashboard.py already handle turning that into a graceful stale-data fallback rather than a guessed number.
+- Do not modify the Python script logic in compute_windows.py, assemble.py, or build_dashboard.py — copy each verbatim. They already handle windowing, parsing, rounding, duplicate-day de-duplication, correct YTD/YoY baseline lookups, and stale-data fallback.
+- Each WebFetch call in STEP 3 should be small and fast (each response is a handful of data points, not a bulk historical dump) — this is deliberate, so responses stay well under any size where WebFetch might summarize/truncate them. Do not "optimize" by requesting a larger date range in one call instead of the three separate small windows.
+- Failure notifications (STEP 6.5) are the only way anyone finds out a daily run silently didn't get fresh data — don't skip that verification step, and don't suppress a warranted PushNotification just because the dashboard "looks fine" thanks to the fallback.
