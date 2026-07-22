@@ -112,18 +112,25 @@ def commodity_pcts(c):
     return day_pct, ytd_pct, yoy_pct, day_label
 
 
-def build_group_section(group_key, group_of, last_snap, own_history_series):
+def build_group_section(group_key, group_of, effective, own_history_series):
     members = [k for k, g in group_of.items() if g == group_key]
     slot = GROUP_COLOR_SLOT[group_key]
 
     rows = []
     for k in members:
-        c = last_snap["commodities"].get(k, {})
+        c = effective.get(k, {})
         label = c.get("label", k)
         unit = c.get("unit", "")
         cur = get_value(c)
         period = c.get("period")
-        sub = f'<div class="tile-sub">{period}</div>' if period else ""
+        stale_since = c.get("stale_since")
+        if stale_since:
+            stale_dt = datetime.fromisoformat(stale_since)
+            sub = f'<div class="tile-stale">Today\'s fetch failed — showing {stale_dt.strftime("%b %d")} data</div>'
+        elif period:
+            sub = f'<div class="tile-sub">{period}</div>'
+        else:
+            sub = ""
         day_pct, ytd_pct, yoy_pct, day_label = commodity_pcts(c)
 
         rows.append(f"""
@@ -146,6 +153,29 @@ def build_group_section(group_key, group_of, last_snap, own_history_series):
       <h2 class="group-title"><span class="dot" style="background:var(--series-{slot})"></span>{GROUP_LABELS[group_key]}</h2>
       <div class="tile-grid">{''.join(rows)}</div>
     </section>"""
+
+
+def latest_good(snapshots, key):
+    """Most recent snapshot where this commodity fetched without an error."""
+    for snap in reversed(snapshots):
+        c = snap["commodities"].get(key)
+        if c and "error" not in c:
+            return c, snap["fetched_at"]
+    return None, None
+
+
+def resolve_effective_commodities(snapshots, last_snap):
+    """Use today's value where the fetch succeeded; otherwise fall back to the
+    most recent successful snapshot for that commodity (tagged with
+    'stale_since') so a source outage doesn't blank the whole dashboard."""
+    effective = {}
+    for key, raw in last_snap["commodities"].items():
+        if raw and "error" not in raw:
+            effective[key] = raw
+            continue
+        good, fetched_at = latest_good(snapshots, key)
+        effective[key] = {**good, "stale_since": fetched_at} if good is not None else raw
+    return effective
 
 
 def own_tracked_series(snapshots):
@@ -178,6 +208,7 @@ def build_html():
 
     last_snap = snapshots[-1]
     group_of = {k: c.get("group") for k, c in last_snap["commodities"].items()}
+    effective = resolve_effective_commodities(snapshots, last_snap)
     own_series = own_tracked_series(snapshots)
 
     # composite = equal-weighted average of each commodity's own pct across all members
@@ -187,7 +218,7 @@ def build_html():
         members = [k for k, gg in group_of.items() if gg == g]
         gday, gytd, gyoy = [], [], []
         for k in members:
-            c = last_snap["commodities"].get(k, {})
+            c = effective.get(k, {})
             if not c or "error" in c:
                 continue
             d, y1, y2, _ = commodity_pcts(c)
@@ -224,7 +255,7 @@ def build_html():
           </div>
         </div>""")
 
-    sections = "".join(build_group_section(g, group_of, last_snap, own_series) for g in GROUP_ORDER)
+    sections = "".join(build_group_section(g, group_of, effective, own_series) for g in GROUP_ORDER)
 
     fetched_at = last_snap["fetched_at"]
     fetched_dt = datetime.fromisoformat(fetched_at)
@@ -371,6 +402,7 @@ def build_html():
   .tile-value {{ font-size: 1.4rem; font-weight: 700; }}
   .tile-unit {{ font-size: 0.72rem; font-weight: 500; color: var(--text-muted); margin-left: 0.35rem; }}
   .tile-sub {{ font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem; }}
+  .tile-stale {{ font-size: 0.72rem; color: var(--bad); font-weight: 600; margin-top: 0.1rem; }}
 
   .badge-row {{ display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.55rem; }}
   .chg-label {{ font-size: 0.68rem; color: var(--text-muted); margin-right: 0.15rem; }}
