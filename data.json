@@ -1,0 +1,109 @@
+{
+  "fetched_at": "2026-07-22T16:47:32.223110+00:00",
+  "commodities": {
+    "copper": {
+      "ticker": "HG=F",
+      "label": "Copper",
+      "unit": "$/lb",
+      "group": "metals",
+      "price": 6.4905,
+      "prev_close": 6.511000156402588,
+      "as_of": "2026-07-22T16:37:23+00:00",
+      "ytd_base": 5.639999866485596,
+      "ytd_base_date": "2026-01-02",
+      "yoy_base": 5.795000076293945,
+      "yoy_base_date": "2025-07-23"
+    },
+    "aluminum": {
+      "ticker": "ALI=F",
+      "label": "Aluminum",
+      "unit": "$/ton",
+      "group": "metals",
+      "price": 3488.5,
+      "prev_close": 3579.25,
+      "as_of": "2026-07-22T15:59:55+00:00",
+      "ytd_base": 2938.0,
+      "ytd_base_date": "2026-01-02",
+      "yoy_base": 2566.75,
+      "yoy_base_date": "2025-07-23"
+    },
+    "steel": {
+      "ticker": "HRC=F",
+      "label": "Steel (HRC)",
+      "unit": "$/ton",
+      "group": "metals",
+      "price": 1191.0,
+      "prev_close": 1154.0,
+      "as_of": "2026-07-22T16:35:04+00:00",
+      "ytd_base": 940.0,
+      "ytd_base_date": "2026-01-02",
+      "yoy_base": 876.0,
+      "yoy_base_date": "2025-07-23"
+    },
+    "crude_oil": {
+      "ticker": "CL=F",
+      "label": "Crude Oil (WTI)",
+      "unit": "$/bbl",
+      "group": "energy",
+      "price": 86.49,
+      "prev_close": 84.91000366210938,
+      "as_of": "2026-07-22T16:37:29+00:00",
+      "ytd_base": 57.31999969482422,
+      "ytd_base_date": "2026-01-02",
+      "yoy_base": 65.25,
+      "yoy_base_date": "2025-07-23"
+    },
+    "natural_gas": {
+      "ticker": "NG=F",
+      "label": "Natural Gas",
+      "unit": "$/MMBtu",
+      "group": "energy",
+      "price": 2.921,
+      "prev_close": 2.865000009536743,
+      "as_of": "2026-07-22T16:37:24+00:00",
+      "ytd_base": 3.618000030517578,
+      "ytd_base_date": "2026-01-02",
+      "yoy_base": 3.0769999027252197,
+      "yoy_base_date": "2025-07-23"
+    },
+    "shipping": {
+      "ticker": "BDRY",
+      "label": "Dry Bulk Shipping (proxy)",
+      "unit": "ETF $",
+      "group": "freight",
+      "price": 12.575,
+      "prev_close": 12.619999885559082,
+      "as_of": "2026-07-22T15:53:59+00:00",
+      "ytd_base": 8.460000038146973,
+      "ytd_base_date": "2026-01-02",
+      "yoy_base": 7.670000076293945,
+      "yoy_base_date": "2025-07-22"
+    },
+    "resin_broad": {
+      "series_id": "WPU066",
+      "label": "Plastic Resins & Materials (PPI)",
+      "group": "resins",
+      "value": 310.753,
+      "period": "June 2026",
+      "prev_value": 319.802,
+      "prev_period": "May 2026",
+      "ytd_base": 252.962,
+      "ytd_base_period": "January 2026",
+      "yoy_base": 265.103,
+      "yoy_base_period": "June 2025"
+    },
+    "resin_thermo": {
+      "series_id": "WPU0662",
+      "label": "Thermoplastic Resins incl. PP/PE/ABS (PPI)",
+      "group": "resins",
+      "value": 317.45,
+      "period": "June 2026",
+      "prev_value": 328.617,
+      "prev_period": "May 2026",
+      "ytd_base": 254.169,
+      "ytd_base_period": "January 2026",
+      "yoy_base": 266.301,
+      "yoy_base_period": "June 2025"
+    }
+  }
+}
