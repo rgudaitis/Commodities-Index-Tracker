@@ -21,6 +21,12 @@ YAHOO_TICKERS = {
 BLS_SERIES = {
     "resin_broad": {"series_id": "WPU066", "label": "Plastic Resins & Materials (PPI)", "group": "resins"},
     "resin_thermo": {"series_id": "WPU0662", "label": "Thermoplastic Resins incl. PP/PE/ABS (PPI)", "group": "resins"},
+    # No free daily/futures market exists for brass (it's an alloy, not exchange-traded) -
+    # same situation as the resins above. This BLS industry PPI series is the closest free
+    # proxy; the "other copper/red brass" companion series (PCU429930429930214) that FRED
+    # lists alongside it returns "Series does not exist" from the BLS API itself, so it's
+    # not usable here.
+    "brass": {"series_id": "PCU429930429930213", "label": "Brass Scrap (Yellow, PPI)", "group": "metals"},
 }
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; commodities-index/1.0)"}
