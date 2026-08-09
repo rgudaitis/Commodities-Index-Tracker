@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-08T11:04:40.369071+00:00",
+  "fetched_at": "2026-08-09T11:05:47.623928+00:00",
   "commodities": {
     "copper": {
       "ticker": "HG=F",
@@ -83,40 +83,19 @@
       "series_id": "WPU066",
       "label": "Plastic Resins & Materials (PPI)",
       "group": "resins",
-      "value": 310.753,
-      "period": "June 2026",
-      "prev_value": 319.802,
-      "prev_period": "May 2026",
-      "ytd_base": 252.962,
-      "ytd_base_period": "January 2026",
-      "yoy_base": 265.103,
-      "yoy_base_period": "June 2025"
+      "error": "503 Server Error: Service Unavailable for url: https://api.bls.gov/publicAPI/v2/timeseries/data/"
     },
     "resin_thermo": {
       "series_id": "WPU0662",
       "label": "Thermoplastic Resins incl. PP/PE/ABS (PPI)",
       "group": "resins",
-      "value": 317.45,
-      "period": "June 2026",
-      "prev_value": 328.617,
-      "prev_period": "May 2026",
-      "ytd_base": 254.169,
-      "ytd_base_period": "January 2026",
-      "yoy_base": 266.301,
-      "yoy_base_period": "June 2025"
+      "error": "503 Server Error: Service Unavailable for url: https://api.bls.gov/publicAPI/v2/timeseries/data/"
     },
     "brass": {
       "series_id": "PCU429930429930213",
       "label": "Brass Scrap (Yellow, PPI)",
       "group": "metals",
-      "value": 1086.343,
-      "period": "June 2026",
-      "prev_value": 1060.832,
-      "prev_period": "May 2026",
-      "ytd_base": 879.254,
-      "ytd_base_period": "January 2026",
-      "yoy_base": 777.82,
-      "yoy_base_period": "June 2025"
+      "error": "503 Server Error: Service Unavailable for url: https://api.bls.gov/publicAPI/v2/timeseries/data/"
     }
   }
 }
