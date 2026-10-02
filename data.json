@@ -1,31 +1,31 @@
 {
-  "fetched_at": "2026-10-01T17:08:09.998865+00:00",
+  "fetched_at": "2026-10-02T16:22:06.226913+00:00",
   "commodities": {
     "copper": {
       "ticker": "HG=F",
       "label": "Copper",
       "unit": "$/lb",
       "group": "metals",
-      "price": 6.5385,
-      "prev_close": 6.559000015258789,
-      "as_of": "2026-10-01T16:58:02+00:00",
+      "price": 6.549,
+      "prev_close": 6.48199987411499,
+      "as_of": "2026-10-02T16:12:03+00:00",
       "ytd_base": 5.639999866485596,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 4.8979997634887695,
-      "yoy_base_date": "2025-10-02"
+      "yoy_base": 5.058000087738037,
+      "yoy_base_date": "2025-10-03"
     },
     "aluminum": {
       "ticker": "ALI=F",
       "label": "Aluminum",
       "unit": "$/ton",
       "group": "metals",
-      "price": 3212.75,
-      "prev_close": 3285.0,
-      "as_of": "2026-10-01T15:45:41+00:00",
+      "price": 3218.5,
+      "prev_close": 3198.0,
+      "as_of": "2026-10-02T15:32:39+00:00",
       "ytd_base": 2938.0,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 2596.5,
-      "yoy_base_date": "2025-10-02"
+      "yoy_base": 2612.75,
+      "yoy_base_date": "2025-10-03"
     },
     "steel": {
       "ticker": "HRC=F",
@@ -34,50 +34,50 @@
       "group": "metals",
       "price": 1304.0,
       "prev_close": 1275.0,
-      "as_of": "2026-10-01T16:53:07+00:00",
+      "as_of": "2026-10-02T15:37:30+00:00",
       "ytd_base": 940.0,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 805.0,
-      "yoy_base_date": "2025-10-02"
+      "yoy_base": 804.0,
+      "yoy_base_date": "2025-10-03"
     },
     "crude_oil": {
       "ticker": "CL=F",
       "label": "Crude Oil (WTI)",
       "unit": "$/bbl",
       "group": "energy",
-      "price": 92.2,
-      "prev_close": 90.41999816894531,
-      "as_of": "2026-10-01T16:58:08+00:00",
+      "price": 90.7,
+      "prev_close": 92.87000274658203,
+      "as_of": "2026-10-02T16:12:05+00:00",
       "ytd_base": 57.31999969482422,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 60.47999954223633,
-      "yoy_base_date": "2025-10-02"
+      "yoy_base": 60.880001068115234,
+      "yoy_base_date": "2025-10-03"
     },
     "natural_gas": {
       "ticker": "NG=F",
       "label": "Natural Gas",
       "unit": "$/MMBtu",
       "group": "energy",
-      "price": 2.962,
-      "prev_close": 3.0260000228881836,
-      "as_of": "2026-10-01T16:58:08+00:00",
+      "price": 3.0,
+      "prev_close": 2.9670000076293945,
+      "as_of": "2026-10-02T16:12:00+00:00",
       "ytd_base": 3.618000030517578,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 3.441999912261963,
-      "yoy_base_date": "2025-10-02"
+      "yoy_base": 3.3239998817443848,
+      "yoy_base_date": "2025-10-03"
     },
     "shipping": {
       "ticker": "BDRY",
       "label": "Dry Bulk Shipping (proxy)",
       "unit": "ETF $",
       "group": "freight",
-      "price": 14.47,
-      "prev_close": 14.550000190734863,
-      "as_of": "2026-10-01T16:52:54+00:00",
+      "price": 14.14,
+      "prev_close": 14.520000457763672,
+      "as_of": "2026-10-02T16:07:44+00:00",
       "ytd_base": 8.460000038146973,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 7.579999923706055,
-      "yoy_base_date": "2025-10-01"
+      "yoy_base": 7.78000020980835,
+      "yoy_base_date": "2025-10-02"
     },
     "resin_broad": {
       "series_id": "WPU066",
