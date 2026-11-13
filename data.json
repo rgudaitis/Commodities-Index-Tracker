@@ -1,31 +1,31 @@
 {
-  "fetched_at": "2026-11-12T18:34:48.406984+00:00",
+  "fetched_at": "2026-11-13T18:02:35.644660+00:00",
   "commodities": {
     "copper": {
       "ticker": "HG=F",
       "label": "Copper",
       "unit": "$/lb",
       "group": "metals",
-      "price": 6.201,
-      "prev_close": 6.274499893188477,
-      "as_of": "2026-11-12T18:24:45+00:00",
+      "price": 6.088,
+      "prev_close": 6.182499885559082,
+      "as_of": "2026-11-13T17:52:31+00:00",
       "ytd_base": 5.639999866485596,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 5.087500095367432,
-      "yoy_base_date": "2025-11-13"
+      "yoy_base": 5.049499988555908,
+      "yoy_base_date": "2025-11-14"
     },
     "aluminum": {
       "ticker": "ALI=F",
       "label": "Aluminum",
       "unit": "$/ton",
       "group": "metals",
-      "price": 3141.5,
-      "prev_close": 3228.0,
-      "as_of": "2026-11-12T17:47:18+00:00",
+      "price": 3120.0,
+      "prev_close": 3160.25,
+      "as_of": "2026-11-13T16:25:08+00:00",
       "ytd_base": 2938.0,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 2830.0,
-      "yoy_base_date": "2025-11-13"
+      "yoy_base": 2786.5,
+      "yoy_base_date": "2025-11-14"
     },
     "steel": {
       "ticker": "HRC=F",
@@ -33,69 +33,90 @@
       "unit": "$/ton",
       "group": "metals",
       "price": 1401.0,
-      "prev_close": 1351.0,
-      "as_of": "2026-11-12T17:54:16+00:00",
+      "prev_close": 1352.0,
+      "as_of": "2026-11-13T17:11:04+00:00",
       "ytd_base": 940.0,
       "ytd_base_date": "2026-01-02",
       "yoy_base": 855.0,
-      "yoy_base_date": "2025-11-13"
+      "yoy_base_date": "2025-11-14"
     },
     "crude_oil": {
       "ticker": "CL=F",
       "label": "Crude Oil (WTI)",
       "unit": "$/bbl",
       "group": "energy",
-      "price": 88.22,
-      "prev_close": 86.52999877929688,
-      "as_of": "2026-11-12T18:24:47+00:00",
+      "price": 88.61,
+      "prev_close": 88.73999786376953,
+      "as_of": "2026-11-13T17:52:33+00:00",
       "ytd_base": 57.31999969482422,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 58.689998626708984,
-      "yoy_base_date": "2025-11-13"
+      "yoy_base": 60.09000015258789,
+      "yoy_base_date": "2025-11-14"
     },
     "natural_gas": {
       "ticker": "NG=F",
       "label": "Natural Gas",
       "unit": "$/MMBtu",
       "group": "energy",
-      "price": 3.305,
-      "prev_close": 3.2149999141693115,
-      "as_of": "2026-11-12T18:24:45+00:00",
+      "price": 3.228,
+      "prev_close": 3.3399999141693115,
+      "as_of": "2026-11-13T17:52:36+00:00",
       "ytd_base": 3.618000030517578,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 4.645999908447266,
-      "yoy_base_date": "2025-11-13"
+      "yoy_base": 4.565999984741211,
+      "yoy_base_date": "2025-11-14"
     },
     "shipping": {
       "ticker": "BDRY",
       "label": "Dry Bulk Shipping (proxy)",
       "unit": "ETF $",
       "group": "freight",
-      "price": 13.31,
-      "prev_close": 13.619999885559082,
-      "as_of": "2026-11-12T18:29:12+00:00",
+      "price": 12.97,
+      "prev_close": 13.210000038146973,
+      "as_of": "2026-11-13T17:50:02+00:00",
       "ytd_base": 8.460000038146973,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 8.479999542236328,
-      "yoy_base_date": "2025-11-12"
+      "yoy_base": 8.699999809265137,
+      "yoy_base_date": "2025-11-13"
     },
     "resin_broad": {
       "series_id": "WPU066",
       "label": "Plastic Resins & Materials (PPI)",
       "group": "resins",
-      "error": "503 Server Error: Service Unavailable for url: https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      "value": 283.875,
+      "period": "October 2026",
+      "prev_value": 279.453,
+      "prev_period": "September 2026",
+      "ytd_base": 252.962,
+      "ytd_base_period": "January 2026",
+      "yoy_base": 259.307,
+      "yoy_base_period": "October 2025"
     },
     "resin_thermo": {
       "series_id": "WPU0662",
       "label": "Thermoplastic Resins incl. PP/PE/ABS (PPI)",
       "group": "resins",
-      "error": "503 Server Error: Service Unavailable for url: https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      "value": 286.777,
+      "period": "October 2026",
+      "prev_value": 281.786,
+      "prev_period": "September 2026",
+      "ytd_base": 254.169,
+      "ytd_base_period": "January 2026",
+      "yoy_base": 260.388,
+      "yoy_base_period": "October 2025"
     },
     "brass": {
       "series_id": "PCU429930429930213",
       "label": "Brass Scrap (Yellow, PPI)",
       "group": "metals",
-      "error": "503 Server Error: Service Unavailable for url: https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      "value": 1194.434,
+      "period": "October 2026",
+      "prev_value": 1144.215,
+      "prev_period": "September 2026",
+      "ytd_base": 879.254,
+      "ytd_base_period": "January 2026",
+      "yoy_base": 785.511,
+      "yoy_base_period": "October 2025"
     }
   }
 }
