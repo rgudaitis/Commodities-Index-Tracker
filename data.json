@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-14T16:43:13.198498+00:00",
+  "fetched_at": "2026-11-15T17:23:22.575989+00:00",
   "commodities": {
     "copper": {
       "ticker": "HG=F",
@@ -11,8 +11,8 @@
       "as_of": "2026-11-13T21:59:59+00:00",
       "ytd_base": 5.639999866485596,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 5.049499988555908,
-      "yoy_base_date": "2025-11-14"
+      "yoy_base": 5.0,
+      "yoy_base_date": "2025-11-17"
     },
     "aluminum": {
       "ticker": "ALI=F",
@@ -24,8 +24,8 @@
       "as_of": "2026-11-13T21:45:43+00:00",
       "ytd_base": 2938.0,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 2786.5,
-      "yoy_base_date": "2025-11-14"
+      "yoy_base": 2732.25,
+      "yoy_base_date": "2025-11-17"
     },
     "steel": {
       "ticker": "HRC=F",
@@ -38,7 +38,7 @@
       "ytd_base": 940.0,
       "ytd_base_date": "2026-01-02",
       "yoy_base": 855.0,
-      "yoy_base_date": "2025-11-14"
+      "yoy_base_date": "2025-11-17"
     },
     "crude_oil": {
       "ticker": "CL=F",
@@ -50,8 +50,8 @@
       "as_of": "2026-11-13T22:00:00+00:00",
       "ytd_base": 57.31999969482422,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 60.09000015258789,
-      "yoy_base_date": "2025-11-14"
+      "yoy_base": 59.90999984741211,
+      "yoy_base_date": "2025-11-17"
     },
     "natural_gas": {
       "ticker": "NG=F",
@@ -63,8 +63,8 @@
       "as_of": "2026-11-13T21:59:58+00:00",
       "ytd_base": 3.618000030517578,
       "ytd_base_date": "2026-01-02",
-      "yoy_base": 4.565999984741211,
-      "yoy_base_date": "2025-11-14"
+      "yoy_base": 4.361000061035156,
+      "yoy_base_date": "2025-11-17"
     },
     "shipping": {
       "ticker": "BDRY",
